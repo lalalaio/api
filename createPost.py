@@ -1,8 +1,11 @@
 import boto3
 import datetime
+import json
 import uuid
 
 def main(event, context):
+    
+    body = json.loads(event.get('body', '{}'))
     
     dynamodb = boto3.resource('dynamodb')
     post = dynamodb.Table('post')
@@ -14,9 +17,19 @@ def main(event, context):
             'uuid': str(uuid.uuid4()),
             'created': created,
             'day': day,
-            'person_uuiid': event.get('person_uuid', ''),
-            'notes': event.get('notes', [])
+            'person_uuiid': body.get('person_uuid', ''),
+            'notes': body.get('notes', [])
         }
     )
     
-    return True
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        },
+        'body': json.dumps({
+            'success': True
+        })
+    }
+    
